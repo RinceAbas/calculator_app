@@ -1,34 +1,24 @@
+// bmi_ui.dart
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'bmi_controller.dart';
 
-class BMIUI extends StatefulWidget {
+class BMIUI extends ConsumerWidget {
   const BMIUI({super.key});
 
   @override
-  State<BMIUI> createState() => _BMIUIState();
-}
+  Widget build(BuildContext context, WidgetRef ref) {
+    final bmiState = ref.watch(bmiControllerProvider);
 
-class _BMIUIState extends State<BMIUI> {
-  final BMIController _bmiController = BMIController();
-  double? _bmiResult;
-  String _bmiCategory = "";
+    final weightController = TextEditingController();
+    final heightController = TextEditingController();
 
-  @override
-  void dispose() {
-    _bmiController.dispose();
-    super.dispose();
-  }
+    void _calculateAndShowBMI() {
+      final weight = double.tryParse(weightController.text) ?? 0;
+      final height = double.tryParse(heightController.text) ?? 1; // Avoid division by zero
+      ref.read(bmiControllerProvider.notifier).calculateBMI(weight, height);
+    }
 
-  void _calculateAndShowBMI() {
-    setState(() {
-      _bmiResult = _bmiController.calculateBMI();
-      _bmiController.determineBMICategory();
-      _bmiCategory = _bmiController.bmiCategory;
-    });
-  }
-
-  @override
-  Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(title: const Text('BMI Calculator')),
       body: Center(
@@ -37,8 +27,8 @@ class _BMIUIState extends State<BMIUI> {
           children: <Widget>[
             Image.asset(
               'assets/logo.png',
-              width: 100,  // Set desired width
-              height: 100, // Set desired height
+              width: 100,
+              height: 100,
             ),
             const SizedBox(height: 16),
             const Text('Input your weight and height'),
@@ -46,7 +36,7 @@ class _BMIUIState extends State<BMIUI> {
             SizedBox(
               width: 200,
               child: TextField(
-                controller: _bmiController.weightController,
+                controller: weightController,
                 decoration: const InputDecoration(
                   labelText: 'Weight (kg)',
                   border: OutlineInputBorder(),
@@ -58,7 +48,7 @@ class _BMIUIState extends State<BMIUI> {
             SizedBox(
               width: 200,
               child: TextField(
-                controller: _bmiController.heightController,
+                controller: heightController,
                 decoration: const InputDecoration(
                   labelText: 'Height (m)',
                   border: OutlineInputBorder(),
@@ -72,9 +62,9 @@ class _BMIUIState extends State<BMIUI> {
               child: const Text('Calculate BMI'),
             ),
             const SizedBox(height: 16),
-            if (_bmiResult != null) ...[
-              Text('Your BMI is ${_bmiResult!.toStringAsFixed(1)}'),
-              Text('Category: $_bmiCategory'),
+            if (bmiState.bmi != null) ...[
+              Text('Your BMI is ${bmiState.bmi!.toStringAsFixed(1)}'),
+              Text('Category: ${bmiState.category}'),
             ],
           ],
         ),
