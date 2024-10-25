@@ -1,9 +1,11 @@
 // bmi_controller.dart
+import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'bmi_state.dart';
 
-class BMIController extends StateNotifier<BMIState> {
-  BMIController() : super(BMIState());
+class BMIController extends ChangeNotifier {
+  BMIState _state = BMIState();
+  BMIState get state => _state;
 
   void calculateBMI(double weight, double height) {
     if (height == 0) {
@@ -11,7 +13,10 @@ class BMIController extends StateNotifier<BMIState> {
     }
     final bmi = weight / (height * height);
     String category = _determineBMICategory(bmi);
-    state = BMIState(bmi: bmi, category: category);
+
+    // Update the state and notify listeners
+    _state = BMIState(bmi: bmi, category: category);
+    notifyListeners();
   }
 
   String _determineBMICategory(double bmi) {
@@ -24,7 +29,7 @@ class BMIController extends StateNotifier<BMIState> {
   }
 }
 
-// Create a StateNotifierProvider for your BMIController
-final bmiControllerProvider = StateNotifierProvider<BMIController, BMIState>(
+// Create a ChangeNotifierProvider for your BMIController
+final bmiControllerProvider = ChangeNotifierProvider<BMIController>(
   (ref) => BMIController(),
 );

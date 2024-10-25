@@ -8,7 +8,8 @@ class BMIUI extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final bmiState = ref.watch(bmiControllerProvider);
+    final bmiController = ref.watch(bmiControllerProvider);
+    final bmiState = bmiController.state;
 
     final weightController = TextEditingController();
     final heightController = TextEditingController();
@@ -16,7 +17,7 @@ class BMIUI extends ConsumerWidget {
     void _calculateAndShowBMI() {
       final weight = double.tryParse(weightController.text) ?? 0;
       final height = double.tryParse(heightController.text) ?? 1; // Avoid division by zero
-      ref.read(bmiControllerProvider.notifier).calculateBMI(weight, height);
+      bmiController.calculateBMI(weight, height);
     }
 
     return Scaffold(
